@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFP MIS · ระบบยืมอุปกรณ์ IT</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            neon: '#22d3ee', // cyan-400
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Font: Prompt (Thai friendly) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen antialiased">
+
+  <!-- ==================== LOGIN VIEW ==================== -->
+  <section id="view-login" class="hidden min-h-screen flex items-center justify-center p-4 grid-bg">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center gap-2 text-neon">
+          <span class="text-3xl">🛡️</span>
+          <span class="text-2xl font-bold tracking-wider">TFP · MIS</span>
+        </div>
+        <p class="text-slate-400 mt-1 text-sm tracking-widest">IT EQUIPMENT LENDING SYSTEM</p>
+      </div>
+
+      <div class="neon-card rounded-2xl p-6 sm:p-8 bg-slate-800/60 backdrop-blur">
+        <h1 class="text-xl font-semibold mb-1">เข้าสู่ระบบ</h1>
+        <p class="text-slate-400 text-sm mb-6">กรุณาระบุบัญชีผู้ใช้เพื่อดำเนินการ</p>
+
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-1">ชื่อผู้ใช้ (Username)</label>
+            <input id="login-username" type="text" autocomplete="username"
+              class="input-neon w-full rounded-lg px-4 py-3 text-base" placeholder="admin / tfp" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-1">รหัสผ่าน (Password)</label>
+            <input id="login-password" type="password" autocomplete="current-password"
+              class="input-neon w-full rounded-lg px-4 py-3 text-base" placeholder="••••••••" />
+          </div>
+
+          <p id="login-error" class="hidden text-rose-400 text-sm bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2"></p>
+
+          <button type="submit"
+            class="btn-neon w-full rounded-lg py-3.5 font-semibold text-slate-900 text-base">
+            เข้าสู่ระบบ →
+          </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-slate-700/60 text-xs text-slate-500 space-y-1">
+          <p class="text-slate-400 font-medium">บัญชีทดสอบ:</p>
+          <p>Admin — <span class="text-neon">admin / mis7day</span></p>
+          <p>User &nbsp;— <span class="text-neon">tfp / tfp2569</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== APP SHELL (User + Admin) ==================== -->
+  <div id="view-app" class="hidden min-h-screen flex flex-col">
+    <!-- Top bar -->
+    <header class="sticky top-0 z-20 bg-slate-900/80 backdrop-blur border-b border-slate-700/60">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🛡️</span>
+          <div>
+            <div class="font-bold text-neon leading-tight">TFP · MIS</div>
+            <div id="role-label" class="text-xs text-slate-400 tracking-widest"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-slate-300 hidden sm:inline">
+            👤 <span id="current-user"></span>
+          </span>
+          <button id="logout-btn"
+            class="rounded-lg px-3 py-1.5 text-sm border border-rose-500/40 text-rose-300 hover:bg-rose-500/10 transition">
+            ออกจากระบบ
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+      <!-- ---------- USER PAGE ---------- -->
+      <div id="page-user" class="hidden space-y-8">
+        <div>
+          <h1 class="text-2xl font-bold">แบบฟอร์มยืมอุปกรณ์ IT</h1>
+          <p class="text-slate-400 text-sm mt-1">กรอกรายละเอียดการยืมให้ครบถ้วน แล้วกดบันทึกคำขอ</p>
+        </div>
+
+        <div class="neon-card rounded-2xl p-6 bg-slate-800/50">
+          <form id="borrow-form" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">ชื่อผู้ยืม</label>
+              <input name="borrower" type="text" required
+                class="input-neon w-full rounded-lg px-4 py-3" placeholder="ชื่อ - นามสกุล" />
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">แผนกที่ยืม</label>
+              <select name="department" required class="input-neon w-full rounded-lg px-4 py-3"></select>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">โรงงาน</label>
+              <select name="factory" required class="input-neon w-full rounded-lg px-4 py-3"></select>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">ประเภทอุปกรณ์ IT</label>
+              <select name="deviceType" required class="input-neon w-full rounded-lg px-4 py-3"></select>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">ยี่ห้อ / รุ่น</label>
+              <input name="model" type="text" required
+                class="input-neon w-full rounded-lg px-4 py-3" placeholder="เช่น Dell Latitude 5440" />
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">วันที่ยืม</label>
+              <input name="borrowDate" type="date" required class="input-neon w-full rounded-lg px-4 py-3" />
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-1">วันที่คืน (กำหนดคืน)</label>
+              <input name="dueDate" type="date" required
+                class="input-neon w-full rounded-lg px-4 py-3" />
+            </div>
+
+            <div class="md:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+              <button type="reset"
+                class="rounded-lg px-5 py-3 border border-slate-600 text-slate-300 hover:bg-slate-700/50 transition text-base">
+                ล้างฟอร์ม
+              </button>
+              <button type="submit"
+                class="btn-neon rounded-lg px-6 py-3.5 font-semibold text-slate-900 text-base">
+                บันทึกคำขอยืม
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- History -->
+        <div>
+          <h2 class="text-lg font-semibold mb-3">📋 ประวัติการยืมล่าสุด</h2>
+
+          <!-- Card layout (mobile only) -->
+          <div id="user-history-cards" class="grid grid-cols-1 gap-3 md:hidden"></div>
+
+          <!-- Table layout (tablet / desktop) -->
+          <div class="neon-card rounded-2xl overflow-hidden bg-slate-800/50 hidden md:block">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-900/60 text-slate-400 text-left">
+                  <tr>
+                    <th class="px-4 py-3">ผู้ยืม</th>
+                    <th class="px-4 py-3">อุปกรณ์</th>
+                    <th class="px-4 py-3">ยี่ห้อ/รุ่น</th>
+                    <th class="px-4 py-3">แผนก</th>
+                    <th class="px-4 py-3">โรงงาน</th>
+                    <th class="px-4 py-3">วันที่ยืม</th>
+                    <th class="px-4 py-3">กำหนดวันคืน</th>
+                    <th class="px-4 py-3">สถานะ</th>
+                  </tr>
+                </thead>
+                <tbody id="user-history-body" class="divide-y divide-slate-700/50"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- ADMIN PAGE ---------- -->
+      <div id="page-admin" class="hidden space-y-8">
+        <div>
+          <h1 class="text-2xl font-bold">🖥️ Control Center — ภาพรวมการยืมอุปกรณ์</h1>
+          <p class="text-slate-400 text-sm mt-1">จัดการคำขอยืมทั้งหมดในเครือ TFP</p>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
+          <div class="neon-card rounded-2xl p-4 sm:p-5 bg-slate-800/50 col-span-2 sm:col-span-1">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-slate-400 text-sm">คำขอทั้งหมด</p>
+                <p id="stat-total" class="text-3xl font-bold text-neon mt-1">0</p>
+              </div>
+              <span class="text-3xl">📦</span>
+            </div>
+          </div>
+          <div class="neon-card rounded-2xl p-4 sm:p-5 bg-slate-800/50 ring-1 ring-amber-500/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-slate-400 text-sm">กำลังยืม / ยังไม่คืน</p>
+                <p id="stat-borrowed" class="text-3xl font-bold text-amber-400 mt-1">0</p>
+              </div>
+              <span class="text-3xl animate-pulse">🟠</span>
+            </div>
+          </div>
+          <div class="neon-card rounded-2xl p-4 sm:p-5 bg-slate-800/50 ring-1 ring-emerald-500/30">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-slate-400 text-sm">คืนแล้ว</p>
+                <p id="stat-returned" class="text-3xl font-bold text-emerald-400 mt-1">0</p>
+              </div>
+              <span class="text-3xl">🟢</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <input id="admin-search" type="text" placeholder="🔍 ค้นหา ชื่อผู้ยืม / อุปกรณ์ / รุ่น..."
+            class="input-neon rounded-lg px-4 py-3 w-full sm:flex-1" />
+          <select id="admin-filter-status" class="input-neon rounded-lg px-4 py-3 w-full sm:w-auto">
+            <option value="all">ทุกสถานะ</option>
+            <option value="กำลังยืม">กำลังยืม</option>
+            <option value="คืนแล้ว">คืนแล้ว</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="neon-card rounded-2xl overflow-hidden bg-slate-800/50">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-900/60 text-slate-400 text-left whitespace-nowrap">
+                <tr>
+                  <th class="px-4 py-3 hidden md:table-cell">#</th>
+                  <th class="px-4 py-3">ผู้ยืม</th>
+                  <th class="px-4 py-3">แผนก</th>
+                  <th class="px-4 py-3 hidden sm:table-cell">โรงงาน</th>
+                  <th class="px-4 py-3">อุปกรณ์</th>
+                  <th class="px-4 py-3">ยี่ห้อ/รุ่น</th>
+                  <th class="px-4 py-3 whitespace-nowrap">วันที่ยืม</th>
+                  <th class="px-4 py-3 whitespace-nowrap">กำหนดวันคืน</th>
+                  <th class="px-4 py-3 hidden md:table-cell whitespace-nowrap">วันที่คืนจริง</th>
+                  <th class="px-4 py-3">สถานะ</th>
+                  <th class="px-4 py-3 text-right">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="admin-table-body" class="divide-y divide-slate-700/50"></tbody>
+            </table>
+          </div>
+          <div id="admin-empty" class="hidden text-center text-slate-500 py-10">— ไม่พบข้อมูล —</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== EDIT MODAL ==================== -->
+  <div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" data-close-modal></div>
+    <div class="relative w-full max-w-lg neon-card rounded-2xl bg-slate-800 p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold">✏️ แก้ไขรายการยืม</h3>
+        <button data-close-modal class="text-slate-400 hover:text-slate-100 text-2xl leading-none">&times;</button>
+      </div>
+
+      <form id="edit-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="hidden" name="id" />
+        <div class="sm:col-span-2">
+          <label class="block text-sm text-slate-300 mb-1">ชื่อผู้ยืม</label>
+          <input name="borrower" type="text" required class="input-neon w-full rounded-lg px-4 py-3" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">แผนก</label>
+          <select name="department" required class="input-neon w-full rounded-lg px-4 py-3"></select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">โรงงาน</label>
+          <select name="factory" required class="input-neon w-full rounded-lg px-4 py-3"></select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">ประเภทอุปกรณ์</label>
+          <select name="deviceType" required class="input-neon w-full rounded-lg px-4 py-3"></select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">ยี่ห้อ / รุ่น</label>
+          <input name="model" type="text" required class="input-neon w-full rounded-lg px-4 py-3" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">วันที่ยืม</label>
+          <input name="borrowDate" type="date" required class="input-neon w-full rounded-lg px-4 py-3" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-300 mb-1">กำหนดวันคืน</label>
+          <input name="dueDate" type="date" required class="input-neon w-full rounded-lg px-4 py-3" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm text-slate-300 mb-1">สถานะ</label>
+          <select name="status" required class="input-neon w-full rounded-lg px-4 py-3">
+            <option value="กำลังยืม">กำลังยืม</option>
+            <option value="คืนแล้ว">คืนแล้ว</option>
+          </select>
+        </div>
+
+        <div class="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+          <button type="button" data-close-modal
+            class="rounded-lg px-5 py-3 border border-slate-600 text-slate-300 hover:bg-slate-700/50 transition text-base">
+            ยกเลิก
+          </button>
+          <button type="submit" class="btn-neon rounded-lg px-6 py-3.5 font-semibold text-slate-900 text-base">
+            บันทึกการแก้ไข
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-6 right-6 z-[60] rounded-lg px-5 py-3 bg-slate-800 border border-neon text-slate-100 shadow-lg"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

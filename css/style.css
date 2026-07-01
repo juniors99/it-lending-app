@@ -1,0 +1,120 @@
+/* ============================================================
+   TFP MIS · IT Lending — Cyber / Neon Theme
+   Custom effects layered on top of Tailwind CDN
+   ============================================================ */
+
+:root {
+  --neon: #22d3ee;          /* cyan-400 */
+  --neon-soft: rgba(34, 211, 238, 0.35);
+  --neon-glow: rgba(34, 211, 238, 0.55);
+}
+
+/* Smooth scrolling + selection color */
+html { scroll-behavior: smooth; }
+::selection { background: var(--neon-glow); color: #0f172a; }
+
+/* --- Neon card: glowing cyan border --- */
+.neon-card {
+  border: 1px solid var(--neon-soft);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.05),
+    0 0 18px -6px var(--neon-glow),
+    inset 0 0 24px -18px var(--neon-glow);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.neon-card:hover {
+  border-color: var(--neon-glow);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.08),
+    0 0 26px -6px var(--neon-glow);
+}
+
+/* --- Inputs / selects --- */
+.input-neon {
+  background-color: rgba(15, 23, 42, 0.75); /* slate-900/75 */
+  border: 1px solid rgba(71, 85, 105, 0.7); /* slate-600 */
+  color: #e2e8f0;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input-neon::placeholder { color: #64748b; }
+.input-neon:focus {
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.18), 0 0 12px -2px var(--neon-glow);
+}
+/* Make native date/select text readable on dark bg */
+.input-neon option { background-color: #0f172a; color: #e2e8f0; }
+.input-neon::-webkit-calendar-picker-indicator { filter: invert(0.8); cursor: pointer; }
+
+/* --- Neon button --- */
+.btn-neon {
+  background: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%);
+  box-shadow: 0 0 18px -4px var(--neon-glow);
+  transition: transform 0.12s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+.btn-neon:hover { filter: brightness(1.08); box-shadow: 0 0 26px -2px var(--neon-glow); }
+.btn-neon:active { transform: translateY(1px) scale(0.99); }
+
+/* --- Subtle animated grid background for login --- */
+.grid-bg {
+  background-color: #0f172a;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* --- Status badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-borrowed {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+.badge-returned {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+/* --- Small action buttons in table --- */
+.btn-action {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+.btn-action:active { transform: scale(0.96); }
+.btn-return {
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.08);
+}
+.btn-return:hover { background: rgba(16, 185, 129, 0.18); }
+.btn-edit {
+  color: var(--neon);
+  border: 1px solid var(--neon-soft);
+  background: rgba(34, 211, 238, 0.08);
+}
+.btn-edit:hover { background: rgba(34, 211, 238, 0.18); }
+
+/* Toast animation */
+#toast { animation: toastIn 0.25s ease; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Row highlight on hover */
+tbody tr:hover { background: rgba(34, 211, 238, 0.04); }
