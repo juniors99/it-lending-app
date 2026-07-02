@@ -380,7 +380,8 @@ function getFilteredRecords() {
         !q ||
         r.borrower.toLowerCase().includes(q) ||
         r.deviceType.toLowerCase().includes(q) ||
-        r.model.toLowerCase().includes(q);
+        r.model.toLowerCase().includes(q) ||
+        r.assetId.toLowerCase().includes(q);
       return matchStatus && matchQ;
     })
     // ล่าสุดขึ้นก่อน — เรียงตาม id (auto-increment) มาก → น้อย
