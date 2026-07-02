@@ -22,13 +22,13 @@
 const SHEET_NAME = 'Sheet1';
 const HEADERS = [
   'ID', 'Timestamp', 'Name', 'Department', 'Factory', 'Category',
-  'Brand', 'BorrowDate', 'ReturnDate', 'ActualReturnDate', 'Status',
+  'Brand', 'AssetId', 'BorrowDate', 'ReturnDate', 'ActualReturnDate', 'Status',
 ];
 
 // Column indexes (1-based) for convenience
 const COL = {
   ID: 1, TIMESTAMP: 2, NAME: 3, DEPARTMENT: 4, FACTORY: 5, CATEGORY: 6,
-  BRAND: 7, BORROW_DATE: 8, RETURN_DATE: 9, ACTUAL_RETURN_DATE: 10, STATUS: 11,
+  BRAND: 7, ASSET_ID: 8, BORROW_DATE: 9, RETURN_DATE: 10, ACTUAL_RETURN_DATE: 11, STATUS: 12,
 };
 
 const STATUS_BORROWED = 'กำลังยืม';
@@ -102,6 +102,7 @@ function createRecord(rec) {
     str(rec.Factory),
     str(rec.Category),
     str(rec.Brand),
+    str(rec.AssetId),      // รหัสทรัพย์สิน
     str(rec.BorrowDate),
     str(rec.ReturnDate),   // กำหนดวันคืน
     '',                    // ActualReturnDate — empty until returned
@@ -131,6 +132,7 @@ function updateRecord(rec) {
   sheet.getRange(row, COL.FACTORY).setValue(str(rec.Factory));
   sheet.getRange(row, COL.CATEGORY).setValue(str(rec.Category));
   sheet.getRange(row, COL.BRAND).setValue(str(rec.Brand));
+  sheet.getRange(row, COL.ASSET_ID).setValue(str(rec.AssetId));
   sheet.getRange(row, COL.BORROW_DATE).setValue(str(rec.BorrowDate));
   sheet.getRange(row, COL.RETURN_DATE).setValue(str(rec.ReturnDate));
 

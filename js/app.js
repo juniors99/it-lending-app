@@ -4,10 +4,15 @@
    ============================================================ */
 
 // ⬇⬇⬇  วาง URL ของ Apps Script Web App (ที่ลงท้ายด้วย /exec) ตรงนี้  ⬇⬇⬇
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn0E0VTdgq3O5Gb3xZECEqREJtNL7UZHtUXrbg7azc8JHEpCEK-Iu3_olKo510d7m3tQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQBN-v-aKAofMWTjQGCb9MHWUyLLeE-N_3Ylan1Wk78XG75rrP0i8YeAolv1GiIb82tA/exec';
 // ⬆⬆⬆  ------------------------------------------------------  ⬆⬆⬆
 
 const SESSION_KEY = 'tfp_mis_session';
+
+// หน้า User: "ประวัติการยืมล่าสุด" จะโชว์เฉพาะรายการที่เพิ่งบันทึก
+// ภายในช่วงเวลานี้ (นับจากตอนกดบันทึกสำเร็จ) แล้วหมดอายุไปเอง
+const RECENT_WINDOW_MS = 30 * 1000;
+const LAST_SAVED_KEY = 'tfp_mis_last_saved';
 
 // In-memory cache of the latest records fetched from the sheet.
 // (Filtering/search on the admin page renders from this cache — no refetch.)
@@ -82,6 +87,7 @@ function normalizeRecord(o) {
     factory: o.Factory || '',
     deviceType: o.Category || '',
     model: o.Brand || '',
+    assetId: o.AssetId || '',
     borrowDate: toISO(o.BorrowDate),
     dueDate: toISO(o.ReturnDate),        // ReturnDate column = กำหนดวันคืน
     returnDate: toISO(o.ActualReturnDate), // ActualReturnDate = วันที่คืนจริง
@@ -252,6 +258,7 @@ async function handleBorrowSubmit(e) {
     Factory: fd.get('factory'),
     Category: fd.get('deviceType'),
     Brand: fd.get('model').trim(),
+    AssetId: (fd.get('assetId') || '').trim(),
     BorrowDate: borrowDate,
     ReturnDate: dueDate,
   };
@@ -259,7 +266,8 @@ async function handleBorrowSubmit(e) {
   const btn = form.querySelector('button[type="submit"]');
   setBusy(btn, true, 'กำลังบันทึก...');
   try {
-    await apiPost({ action: 'create', record });
+    const created = await apiPost({ action: 'create', record });
+    if (created && created.ID != null) rememberLastSaved(created.ID);
     form.reset();
     showToast('บันทึกคำขอยืมเรียบร้อย ✅');
     await loadData();
@@ -270,19 +278,47 @@ async function handleBorrowSubmit(e) {
   }
 }
 
+/** เก็บ ID + เวลาที่บันทึกล่าสุดไว้ใน localStorage (รอด refresh, หมดอายุตาม RECENT_WINDOW_MS) */
+function rememberLastSaved(id) {
+  localStorage.setItem(LAST_SAVED_KEY, JSON.stringify({ id: String(id), savedAt: Date.now() }));
+}
+
+/** คืน { id, remaining } ของรายการที่เพิ่งบันทึกถ้ายังอยู่ในช่วง 30 วิ, ไม่งั้นคืน null */
+function getRecentSaved() {
+  try {
+    const v = JSON.parse(localStorage.getItem(LAST_SAVED_KEY));
+    if (!v || v.id == null) return null;
+    const remaining = RECENT_WINDOW_MS - (Date.now() - v.savedAt);
+    if (remaining <= 0) return null;
+    return { id: String(v.id), remaining };
+  } catch {
+    return null;
+  }
+}
+
 function renderUserHistory() {
   const body = $('#user-history-body');
   const cards = $('#user-history-cards');
 
-  if (records.length === 0) {
-    const msg = '— ยังไม่มีรายการยืม —';
+  // แสดงเฉพาะรายการที่เพิ่งบันทึกภายใน 30 วิ (จับจาก ID จริง ไม่ใช่เดาจากเวลา)
+  clearTimeout(renderUserHistory._t);
+  const recent = getRecentSaved();
+  const list = recent ? records.filter((r) => String(r.id) === recent.id) : [];
+
+  if (list.length === 0) {
+    const msg = recent
+      ? '— ไม่พบรายการที่เพิ่งบันทึก —'
+      : '— แสดงเฉพาะรายการที่เพิ่งบันทึก (ภายใน 30 วินาที) —';
     body.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-500">${msg}</td></tr>`;
     cards.innerHTML = `<div class="neon-card rounded-2xl bg-slate-800/50 py-8 text-center text-slate-500">${msg}</div>`;
     return;
   }
 
+  // พอครบ 30 วิให้ re-render เพื่อล้างรายการออกเอง (แม้ผู้ใช้ไม่ได้ refresh)
+  renderUserHistory._t = setTimeout(renderUserHistory, recent.remaining + 100);
+
   // Desktop / tablet table rows
-  body.innerHTML = records
+  body.innerHTML = list
     .map(
       (r) => `
       <tr>
@@ -299,7 +335,7 @@ function renderUserHistory() {
     .join('');
 
   // Mobile card layout
-  cards.innerHTML = records
+  cards.innerHTML = list
     .map(
       (r) => `
       <div class="neon-card rounded-2xl p-4 bg-slate-800/50">
@@ -421,6 +457,7 @@ function openEditModal(id) {
   form.factory.value = rec.factory;
   form.deviceType.value = rec.deviceType;
   form.model.value = rec.model;
+  form.assetId.value = rec.assetId || '';
   form.borrowDate.value = rec.borrowDate || '';
   form.dueDate.value = rec.dueDate || '';
   form.status.value = rec.status;
@@ -451,6 +488,7 @@ async function handleEditSubmit(e) {
     Factory: form.factory.value,
     Category: form.deviceType.value,
     Brand: form.model.value.trim(),
+    AssetId: (form.assetId.value || '').trim(),
     BorrowDate: borrowDate,
     ReturnDate: dueDate,
     Status: form.status.value,

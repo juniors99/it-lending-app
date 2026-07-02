@@ -33,7 +33,8 @@ it-lending-app/
 6. เปิด `index.html` บนเบราว์เซอร์ → ใช้งานได้ทันที
 
 > คอลัมน์ในชีต (สร้างอัตโนมัติเมื่อเรียกครั้งแรก):
-> `ID | Timestamp | Name | Department | Factory | Category | Brand | BorrowDate | ReturnDate | ActualReturnDate | Status`
+> `ID | Timestamp | Name | Department | Factory | Category | Brand | AssetId | BorrowDate | ReturnDate | ActualReturnDate | Status`
+> โดย `AssetId` = รหัสทรัพย์สิน (อยู่หลัง Brand)
 > โดย `ReturnDate` = กำหนดวันคืน (deadline), `ActualReturnDate` = วันที่คืนจริง
 
 ## หมายเหตุ

@@ -9,7 +9,7 @@ const DEPARTMENTS = [
   'PDC', 'CRC', 'QDS', 'SOD', 'PLN', 'PRO', 'QC', 'STR', 'COS', 'MD',
 ];
 
-const FACTORIES = ['CEN', 'TFI-E', 'EL', 'NEX', 'SL', 'AFT', 'YTT'];
+const FACTORIES = ['CEN', 'TFI-E', 'EL', 'NEX', 'SL', 'AFT', 'YTT', 'INDUS'];
 
 const DEVICE_TYPES = [
   'Laptop', 'Monitor', 'PC', 'Printer', 'Tablet', 'Mouse', 'Keyboard',
