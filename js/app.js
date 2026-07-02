@@ -373,15 +373,18 @@ function updateStats() {
 function getFilteredRecords() {
   const q = $('#admin-search').value.trim().toLowerCase();
   const status = $('#admin-filter-status').value;
-  return records.filter((r) => {
-    const matchStatus = status === 'all' || r.status === status;
-    const matchQ =
-      !q ||
-      r.borrower.toLowerCase().includes(q) ||
-      r.deviceType.toLowerCase().includes(q) ||
-      r.model.toLowerCase().includes(q);
-    return matchStatus && matchQ;
-  });
+  return records
+    .filter((r) => {
+      const matchStatus = status === 'all' || r.status === status;
+      const matchQ =
+        !q ||
+        r.borrower.toLowerCase().includes(q) ||
+        r.deviceType.toLowerCase().includes(q) ||
+        r.model.toLowerCase().includes(q);
+      return matchStatus && matchQ;
+    })
+    // ล่าสุดขึ้นก่อน — เรียงตาม id (auto-increment) มาก → น้อย
+    .sort((a, b) => Number(b.id) - Number(a.id));
 }
 
 function renderAdmin() {
@@ -409,6 +412,7 @@ function renderAdmin() {
         <td class="px-4 py-3 hidden sm:table-cell">${r.factory}</td>
         <td class="px-4 py-3">${r.deviceType}</td>
         <td class="px-4 py-3 text-slate-300 whitespace-nowrap">${r.model}</td>
+        <td class="px-4 py-3 text-slate-300 whitespace-nowrap">${r.assetId || '—'}</td>
         <td class="px-4 py-3 whitespace-nowrap">${formatThaiDate(r.borrowDate)}</td>
         <td class="px-4 py-3 whitespace-nowrap">${formatThaiDate(r.dueDate)}</td>
         <td class="px-4 py-3 hidden md:table-cell whitespace-nowrap">${formatThaiDate(r.returnDate)}</td>
@@ -530,7 +534,7 @@ function showLoading() {
   const loading = '⏳ กำลังโหลดข้อมูลจาก Google Sheets...';
   if (session && session.role === 'admin') {
     $('#admin-table-body').innerHTML =
-      `<tr><td colspan="11" class="px-4 py-10 text-center text-slate-400">${loading}</td></tr>`;
+      `<tr><td colspan="12" class="px-4 py-10 text-center text-slate-400">${loading}</td></tr>`;
     $('#admin-empty').classList.add('hidden');
   } else {
     $('#user-history-body').innerHTML =
@@ -545,7 +549,7 @@ function renderError(err) {
   const msg = `⚠ เชื่อมต่อไม่สำเร็จ (${err.message}) — ตรวจสอบ SCRIPT_URL และการ Deploy`;
   if (session && session.role === 'admin') {
     $('#admin-table-body').innerHTML =
-      `<tr><td colspan="11" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
+      `<tr><td colspan="12" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
   } else {
     $('#user-history-body').innerHTML =
       `<tr><td colspan="8" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
@@ -560,7 +564,7 @@ function renderConfigWarning() {
   if (session && session.role === 'admin') {
     updateStats();
     $('#admin-table-body').innerHTML =
-      `<tr><td colspan="11" class="px-4 py-10 text-center text-amber-400">${msg}</td></tr>`;
+      `<tr><td colspan="12" class="px-4 py-10 text-center text-amber-400">${msg}</td></tr>`;
     $('#admin-empty').classList.add('hidden');
   } else {
     $('#user-history-body').innerHTML =
