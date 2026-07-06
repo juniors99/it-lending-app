@@ -311,7 +311,7 @@ function renderUserHistory() {
     const msg = recent
       ? '— ไม่พบรายการที่เพิ่งบันทึก —'
       : '— แสดงเฉพาะรายการที่เพิ่งบันทึก (ภายใน 30 วินาที) —';
-    body.innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-slate-500">${msg}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10" class="px-4 py-8 text-center text-slate-500">${msg}</td></tr>`;
     cards.innerHTML = `<div class="neon-card rounded-2xl bg-slate-800/50 py-8 text-center text-slate-500">${msg}</div>`;
     return;
   }
@@ -327,6 +327,8 @@ function renderUserHistory() {
         <td class="px-4 py-3 font-medium">${r.borrower}</td>
         <td class="px-4 py-3">${r.deviceType}</td>
         <td class="px-4 py-3 text-slate-300">${r.model}</td>
+        <td class="px-4 py-3 text-slate-300">${r.assetId || '—'}</td>
+        <td class="px-4 py-3 text-slate-300">${r.reason || '—'}</td>
         <td class="px-4 py-3">${r.department}</td>
         <td class="px-4 py-3">${r.factory}</td>
         <td class="px-4 py-3">${formatThaiDate(r.borrowDate)}</td>
@@ -350,6 +352,8 @@ function renderUserHistory() {
         </div>
         <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
           <div><span class="text-slate-500">ผู้ยืม:</span> ${r.borrower}</div>
+          <div><span class="text-slate-500">รหัสทรัพย์สิน:</span> ${r.assetId || '—'}</div>
+          <div><span class="text-slate-500">สาเหตุ:</span> ${r.reason || '—'}</div>
           <div><span class="text-slate-500">แผนก:</span> ${r.department}</div>
           <div><span class="text-slate-500">โรงงาน:</span> ${r.factory}</div>
           <div><span class="text-slate-500">วันที่ยืม:</span> ${formatThaiDate(r.borrowDate)}</div>
@@ -545,7 +549,7 @@ function showLoading() {
     $('#admin-empty').classList.add('hidden');
   } else {
     $('#user-history-body').innerHTML =
-      `<tr><td colspan="8" class="px-4 py-10 text-center text-slate-400">${loading}</td></tr>`;
+      `<tr><td colspan="10" class="px-4 py-10 text-center text-slate-400">${loading}</td></tr>`;
     $('#user-history-cards').innerHTML =
       `<div class="neon-card rounded-2xl bg-slate-800/50 py-8 text-center text-slate-400">${loading}</div>`;
   }
@@ -559,7 +563,7 @@ function renderError(err) {
       `<tr><td colspan="13" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
   } else {
     $('#user-history-body').innerHTML =
-      `<tr><td colspan="8" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
+      `<tr><td colspan="10" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
     $('#user-history-cards').innerHTML =
       `<div class="neon-card rounded-2xl bg-slate-800/50 py-8 text-center text-rose-400">${msg}</div>`;
   }
@@ -575,7 +579,7 @@ function renderConfigWarning() {
     $('#admin-empty').classList.add('hidden');
   } else {
     $('#user-history-body').innerHTML =
-      `<tr><td colspan="8" class="px-4 py-10 text-center text-amber-400">${msg}</td></tr>`;
+      `<tr><td colspan="10" class="px-4 py-10 text-center text-amber-400">${msg}</td></tr>`;
     $('#user-history-cards').innerHTML =
       `<div class="neon-card rounded-2xl bg-slate-800/50 py-8 text-center text-amber-400">${msg}</div>`;
   }
