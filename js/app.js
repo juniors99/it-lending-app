@@ -4,7 +4,7 @@
    ============================================================ */
 
 // ⬇⬇⬇  วาง URL ของ Apps Script Web App (ที่ลงท้ายด้วย /exec) ตรงนี้  ⬇⬇⬇
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQBN-v-aKAofMWTjQGCb9MHWUyLLeE-N_3Ylan1Wk78XG75rrP0i8YeAolv1GiIb82tA/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyevTTv-8Tk5IJMUfXEvNppmt5SXVP_XjRBwJV6W5jbAJjL6EM5vCCDHvI3ACI3Zo02gw/exec';
 // ⬆⬆⬆  ------------------------------------------------------  ⬆⬆⬆
 
 const SESSION_KEY = 'tfp_mis_session';
@@ -88,6 +88,7 @@ function normalizeRecord(o) {
     deviceType: o.Category || '',
     model: o.Brand || '',
     assetId: o.AssetId || '',
+    reason: o.Reason || '',
     borrowDate: toISO(o.BorrowDate),
     dueDate: toISO(o.ReturnDate),        // ReturnDate column = กำหนดวันคืน
     returnDate: toISO(o.ActualReturnDate), // ActualReturnDate = วันที่คืนจริง
@@ -259,6 +260,7 @@ async function handleBorrowSubmit(e) {
     Category: fd.get('deviceType'),
     Brand: fd.get('model').trim(),
     AssetId: (fd.get('assetId') || '').trim(),
+    Reason: (fd.get('reason') || '').trim(),
     BorrowDate: borrowDate,
     ReturnDate: dueDate,
   };
@@ -381,7 +383,8 @@ function getFilteredRecords() {
         r.borrower.toLowerCase().includes(q) ||
         r.deviceType.toLowerCase().includes(q) ||
         r.model.toLowerCase().includes(q) ||
-        r.assetId.toLowerCase().includes(q);
+        r.assetId.toLowerCase().includes(q) ||
+        r.reason.toLowerCase().includes(q);
       return matchStatus && matchQ;
     })
     // ล่าสุดขึ้นก่อน — เรียงตาม id (auto-increment) มาก → น้อย
@@ -414,6 +417,7 @@ function renderAdmin() {
         <td class="px-4 py-3">${r.deviceType}</td>
         <td class="px-4 py-3 text-slate-300 whitespace-nowrap">${r.model}</td>
         <td class="px-4 py-3 text-slate-300 whitespace-nowrap">${r.assetId || '—'}</td>
+        <td class="px-4 py-3 text-slate-300">${r.reason || '—'}</td>
         <td class="px-4 py-3 whitespace-nowrap">${formatThaiDate(r.borrowDate)}</td>
         <td class="px-4 py-3 whitespace-nowrap">${formatThaiDate(r.dueDate)}</td>
         <td class="px-4 py-3 hidden md:table-cell whitespace-nowrap">${formatThaiDate(r.returnDate)}</td>
@@ -463,6 +467,7 @@ function openEditModal(id) {
   form.deviceType.value = rec.deviceType;
   form.model.value = rec.model;
   form.assetId.value = rec.assetId || '';
+  form.reason.value = rec.reason || '';
   form.borrowDate.value = rec.borrowDate || '';
   form.dueDate.value = rec.dueDate || '';
   form.status.value = rec.status;
@@ -494,6 +499,7 @@ async function handleEditSubmit(e) {
     Category: form.deviceType.value,
     Brand: form.model.value.trim(),
     AssetId: (form.assetId.value || '').trim(),
+    Reason: (form.reason.value || '').trim(),
     BorrowDate: borrowDate,
     ReturnDate: dueDate,
     Status: form.status.value,
@@ -535,7 +541,7 @@ function showLoading() {
   const loading = '⏳ กำลังโหลดข้อมูลจาก Google Sheets...';
   if (session && session.role === 'admin') {
     $('#admin-table-body').innerHTML =
-      `<tr><td colspan="12" class="px-4 py-10 text-center text-slate-400">${loading}</td></tr>`;
+      `<tr><td colspan="13" class="px-4 py-10 text-center text-slate-400">${loading}</td></tr>`;
     $('#admin-empty').classList.add('hidden');
   } else {
     $('#user-history-body').innerHTML =
@@ -550,7 +556,7 @@ function renderError(err) {
   const msg = `⚠ เชื่อมต่อไม่สำเร็จ (${err.message}) — ตรวจสอบ SCRIPT_URL และการ Deploy`;
   if (session && session.role === 'admin') {
     $('#admin-table-body').innerHTML =
-      `<tr><td colspan="12" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
+      `<tr><td colspan="13" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
   } else {
     $('#user-history-body').innerHTML =
       `<tr><td colspan="8" class="px-4 py-10 text-center text-rose-400">${msg}</td></tr>`;
@@ -565,7 +571,7 @@ function renderConfigWarning() {
   if (session && session.role === 'admin') {
     updateStats();
     $('#admin-table-body').innerHTML =
-      `<tr><td colspan="12" class="px-4 py-10 text-center text-amber-400">${msg}</td></tr>`;
+      `<tr><td colspan="13" class="px-4 py-10 text-center text-amber-400">${msg}</td></tr>`;
     $('#admin-empty').classList.add('hidden');
   } else {
     $('#user-history-body').innerHTML =

@@ -4,7 +4,7 @@
    Web App endpoint for the SPA (index.html).
    Columns (in this exact order):
      ID | Timestamp | Name | Department | Factory | Category |
-     Brand | BorrowDate | ReturnDate | ActualReturnDate | Status
+     Brand | AssetId | Reason | BorrowDate | ReturnDate | ActualReturnDate | Status
 
    HOW TO DEPLOY
    1. Open https://sheets.google.com and create a new spreadsheet.
@@ -22,13 +22,13 @@
 const SHEET_NAME = 'Sheet1';
 const HEADERS = [
   'ID', 'Timestamp', 'Name', 'Department', 'Factory', 'Category',
-  'Brand', 'AssetId', 'BorrowDate', 'ReturnDate', 'ActualReturnDate', 'Status',
+  'Brand', 'AssetId', 'Reason', 'BorrowDate', 'ReturnDate', 'ActualReturnDate', 'Status',
 ];
 
 // Column indexes (1-based) for convenience
 const COL = {
   ID: 1, TIMESTAMP: 2, NAME: 3, DEPARTMENT: 4, FACTORY: 5, CATEGORY: 6,
-  BRAND: 7, ASSET_ID: 8, BORROW_DATE: 9, RETURN_DATE: 10, ACTUAL_RETURN_DATE: 11, STATUS: 12,
+  BRAND: 7, ASSET_ID: 8, REASON: 9, BORROW_DATE: 10, RETURN_DATE: 11, ACTUAL_RETURN_DATE: 12, STATUS: 13,
 };
 
 const STATUS_BORROWED = 'กำลังยืม';
@@ -103,6 +103,7 @@ function createRecord(rec) {
     str(rec.Category),
     str(rec.Brand),
     str(rec.AssetId),      // รหัสทรัพย์สิน
+    str(rec.Reason),       // สาเหตุ
     str(rec.BorrowDate),
     str(rec.ReturnDate),   // กำหนดวันคืน
     '',                    // ActualReturnDate — empty until returned
@@ -133,6 +134,7 @@ function updateRecord(rec) {
   sheet.getRange(row, COL.CATEGORY).setValue(str(rec.Category));
   sheet.getRange(row, COL.BRAND).setValue(str(rec.Brand));
   sheet.getRange(row, COL.ASSET_ID).setValue(str(rec.AssetId));
+  sheet.getRange(row, COL.REASON).setValue(str(rec.Reason));
   sheet.getRange(row, COL.BORROW_DATE).setValue(str(rec.BorrowDate));
   sheet.getRange(row, COL.RETURN_DATE).setValue(str(rec.ReturnDate));
 
